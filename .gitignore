@@ -14,43 +14,7 @@
 *.class
 *.dmg
 .DS_Store
-.deps
-.libs
-.dirstamp
-ABOUT-NLS
-aclocal.m4
-ChangeLog
-compile
-config.status
-config.h*
-config.log
-configure
-doltcompile
-doltlibtool
-INSTALL.git
-libtool
-Makefile
-Makefile.in
-stamp-*
-vlc
-vlc.pexe
-vlc.nexe
-qvlc
-rvlc
-svlc
-cvlc
-qvlc
-mvlc
-nvlc
-wxvlc
-vlc_install_dir/*
-plugins.dat
-patches/*
 
-include/vlc/libvlc_version.h
-
-bin/vlc_ppapi_static_modules_init.h
-bin/vlc_ppapi_static_ldadd.am
 
 # Ignore build dirs
 build*
