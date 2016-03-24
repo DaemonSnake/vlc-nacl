@@ -79,14 +79,15 @@ checkfail()
 showvar SRC_DIR
 showvar BUILD_DIR
 
+make_dir $BUILD_DIR
+
 #############
 # ARGUMENTS #
 #############
 
-DISABLE_MANAGE_SUBMODULES=0
 ARCH="le32"
 RELEASE=0
-GDB_FILE=""
+VERBOSE_MAKE=0
 
 # load the config file:
 if [ -f ${BUILD_DIR}/config.sh ]; then
@@ -119,12 +120,8 @@ while [ $# -gt 0 ]; do
         release|--release)
             RELEASE=1
             ;;
-        --gdb)
-            GDB_FILE="$2"
-            shift
-            ;;
-        --disable-manage-submodules)
-            DISABLE_MANAGE_SUBMODULES=1
+        --verbose-make)
+            VERBOSE_MAKE=1
             ;;
     esac
     shift
@@ -139,7 +136,7 @@ if [ -z "$WEBPORTS_ROOT" ]; then
     exit 1
 fi
 
-if which remake 2&>1 > /dev/null;
+if which remake > /dev/null;
 then
     MAKE=remake
 else
@@ -148,10 +145,10 @@ fi
 
 putstrvar NACL_SDK_ROOT
 putstrvar WEBPORTS_ROOT
-putvar DISABLE_MANAGE_SUBMODULES
 putvar ARCH
 putvar RELEASE
 putvar MAKE
+putvar VERBOSE_MAKE
 
 # CONFIGURE DONE
 
@@ -325,44 +322,6 @@ showvar CXXFLAGS
 showvar EXTRA_CXXFLAGS
 showvar LDFLAGS
 
-# Have to be in the top of src directory for this
-if [ -z $DISABLE_MANAGE_SUBMODULES ]
-then
-    cd ${SRC_DIR}
-
-    msg "git: submodule sync"
-    git submodule sync
-
-    msg "git: submodule init"
-    git submodule init
-
-    msg "git: submodule update"
-    git submodule update
-    checkfail "git failed"
-
-    msg "git: submodule foreach sync"
-    git submodule foreach --recursive 'if test -e .gitmodules; then git submodule sync; fi'
-    checkfail "git failed"
-
-    msg "git: submodule foreach update"
-    git submodule update --recursive
-    checkfail "git failed"
-
-    # NB: this is just for the sake of getting the submodule SHA1 values
-    # and status written into the build log.
-    msg "git: submodule status"
-    git submodule status --recursive
-
-    msg "git: submodule clobber"
-    git submodule foreach --recursive git clean -dxf
-    checkfail "git failed"
-    git submodule foreach --recursive git checkout .
-    checkfail "git failed"
-
-    cd ${BUILD_DIR}
-fi
-
-
 ###########################
 # Build buildsystem tools #
 ###########################
@@ -428,7 +387,7 @@ fi
 ############
 
 step_msg "Building"
-$MAKE $MAKEFLAGS V=1
+$MAKE $MAKEFLAGS V=$VERBOSE_MAKE
 checkfail "vlc: make failed"
 
 cd $SRC_DIR
