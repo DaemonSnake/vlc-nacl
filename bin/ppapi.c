@@ -35,7 +35,7 @@ VLC_PPAPI_MODULE_NAME("vlc");
   int CONCATENATE(vlc_entry, name)                     \
        (int (*)(void*, void*, int, ...),               \
         void*);
-#include "vlc_ppapi_static_modules_init.h"
+#include "vlc_static_modules_init.h"
 #undef PLUGIN_INIT_SYMBOL
 
 // A few modules are manually disabled because they trigger asserts within
@@ -58,8 +58,8 @@ PLUGIN_INIT_SYMBOL(access_concat)
 #define PLUGIN_INIT_SYMBOL(name)                \
   CONCATENATE(vlc_entry, name),
 
-vlc_plugin_cb vlc_static_modules[] = {
-#include "vlc_ppapi_static_modules_init.h"
+static vlc_plugin_cb vlc_static_modules[] = {
+#include "vlc_static_modules_init.h"
   NULL
 };
 #undef PLUGIN_INIT_SYMBOL
