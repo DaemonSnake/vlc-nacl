@@ -363,6 +363,14 @@ cp ${SRC_DIR}/extras/glesv2.pc ${WEBPORTS_SYSROOT}/usr/lib/pkgconfig
 
 cd ${BUILD_DIR}/vlc-${TARGET_TRIPLE}
 
+export CC="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool cc)"
+export CXX="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool c++)"
+export NM="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool nm)"
+export STRIP="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool strip)"
+export RANLIB="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool ranlib)"
+export AR="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool ar)"
+export PKG_CONFIG_LIBDIR="${WEBPORTS_SYSROOT}/usr/lib/pkgconfig"
+
 if [ ! -e ./config.h ]; then
     step_msg "Configuring VLC..."
 
@@ -370,13 +378,6 @@ if [ ! -e ./config.h ]; then
             CFLAGS="$CFLAGS ${EXTRA_CFLAGS}" \
             CXXFLAGS="$CFLAGS ${EXTRA_CXXFLAGS}" \
             LDFLAGS="$LDFLAGS" \
-            CC="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool cc)" \
-            CXX="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool c++)" \
-            NM="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool nm)" \
-            STRIP="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool strip)" \
-            RANLIB="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool ranlib)" \
-            AR="$($NACL_SDK_ROOT/tools/nacl_config.py ${CONFIG_ARGS} --tool ar)" \
-            PKG_CONFIG_LIBDIR="${WEBPORTS_SYSROOT}/usr/lib/pkgconfig" \
             sh $VLC_SRC_DIR/configure --host=$TARGET_TRIPLE --target=$TARGET_TRIPLE \
             ${EXTRA_PARAMS} ${VLC_CONFIGURE_ARGS} ${OPTS}
     checkfail "vlc: configure failed"
@@ -386,11 +387,26 @@ fi
 # BUILDING #
 ############
 
-step_msg "Building"
+step_msg "Building VLC"
 $MAKE $MAKEFLAGS V=$VERBOSE_MAKE
 checkfail "vlc: make failed"
 
 cd $SRC_DIR
+
+step_msg "Building self"
+
+CFLAGS="${CFLAGS} -I${SRC_DIR}/vlc/include -I${SRC_DIR}/include -I${VLC_BUILD_DIR}"
+
+CPPFLAGS="$CFLAGS" \
+            CFLAGS="$CFLAGS ${EXTRA_CFLAGS}" \
+            CXXFLAGS="$CFLAGS ${EXTRA_CXXFLAGS}" \
+            LDFLAGS="$LDFLAGS" \
+            \
+            $MAKE $MAKEFLAGS V=$VERBOSE_MAKE IN_COMPILE_SH=1 BUILD_DIR="${BUILD_DIR}" PNACL="${PNACL}" \
+            OPT="${SYSROOT}/bin/pnacl-opt" TRANS="${SYSROOT}/bin/pnacl-translate" \
+            FREEZE="${SYSROOT}/bin/pnacl-freeze" BCCOMPRESS="${SYSROOT}/bin/bccompress"\
+            MACHINE=`uname -m` RELEASE=$RELEASE
+checkfail "make failed"
 
 msg "TODO: get VLC proper to build for NaCl, then fix the rest of this script."
 exit 1
