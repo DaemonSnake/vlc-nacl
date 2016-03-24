@@ -1,0 +1,48 @@
+From 9fbccc0051a8b38e0418ec69ab02b6fc2d609ada Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Thu, 24 Mar 2016 14:04:54 -0500
+Subject: [PATCH 2/3] Use strerror_r if strerror_l is unavailable.
+
+---
+ configure.ac      | 2 +-
+ src/posix/error.c | 4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index b33c5d7..8e5ccbc 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -575,7 +575,7 @@ need_libc=false
+ 
+ dnl Check for usual libc functions
+ AC_CHECK_DECLS([nanosleep],,,[#include <time.h>])
+-AC_CHECK_FUNCS([daemon fcntl flock fstatvfs fork getenv getpwuid_r isatty lstat memalign mkostemp mmap open_memstream openat pread posix_fadvise posix_madvise setlocale stricmp strnicmp strptime uselocale pthread_cond_timedwait_monotonic_np pthread_condattr_setclock])
++AC_CHECK_FUNCS([daemon fcntl flock fstatvfs fork getenv getpwuid_r isatty lstat memalign mkostemp mmap open_memstream openat pread posix_fadvise posix_madvise setlocale stricmp strnicmp strptime uselocale pthread_cond_timedwait_monotonic_np pthread_condattr_setclock strerror_l])
+ AC_REPLACE_FUNCS([atof atoll dirfd fdopendir ffsll flockfile fsync getdelim getpid lldiv nrand48 poll posix_memalign recvmsg rewind sendmsg setenv strcasecmp strcasestr strdup strlcpy strndup strnlen strnstr strsep strtof strtok_r strtoll swab tdestroy timegm timespec_get strverscmp])
+ AC_REPLACE_FUNCS([gettimeofday])
+ AC_CHECK_FUNCS(fdatasync,,
+diff --git a/src/posix/error.c b/src/posix/error.c
+index db51004..6b6e10e 100644
+--- a/src/posix/error.c
++++ b/src/posix/error.c
+@@ -31,6 +31,7 @@
+ 
+ static const char *vlc_strerror_l(int errnum, const char *lname)
+ {
++#ifdef HAVE_STRERROR_L
+     int saved_errno = errno;
+     locale_t loc = newlocale(LC_MESSAGES_MASK, lname, (locale_t)0);
+ 
+@@ -51,6 +52,9 @@ static const char *vlc_strerror_l(int errnum, const char *lname)
+     const char *buf = strerror_l(errnum, loc);
+ 
+     freelocale(loc);
++#else
++    const char *buf = strerror_r(errnum, NULL, 0);
++#endif
+     return buf;
+ }
+ 
+-- 
+2.5.0
+
