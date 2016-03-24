@@ -59,7 +59,7 @@ static void close_loader(access_sys_t* sys);
 static bool case_insensitive_strncmp(const char* left, const char* right, const size_t len);
 
 vlc_module_begin()
-	set_description(N_("PPAPI HTTP/HTTPS Access Module"))
+	set_description("PPAPI HTTP/HTTPS Access Module")
 	set_capability("access", 0)
 	set_shortname("ppapi-remote-access")
 	set_category(CAT_INPUT)
