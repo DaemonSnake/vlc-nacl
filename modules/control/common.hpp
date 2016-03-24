@@ -29,6 +29,7 @@
 #include <vlc_common.h>
 #include <vlc_ppapi.h>
 #include <vlc_interface.h>
+#include <vlc/libvlc.h>
 
 typedef struct intf_sys_t {
   PP_Instance instance;
@@ -226,7 +227,7 @@ VLC_PPAPI_STATIC_STR(package_major, "package_major");
 VLC_PPAPI_STATIC_STR(package_minor, "package_minor");
 VLC_PPAPI_STATIC_STR(package_extra, "package_extra");
 
-extern const char psz_vlc_changeset[];
+#include <config.h>
 
 static struct {
   vlc_ppapi_static_str_t key;
@@ -241,6 +242,8 @@ static struct {
   { VLC_PPAPI_STATIC_STR_INIT("package_bugreport"), VLC_PPAPI_STATIC_STR_INIT(PACKAGE_BUGREPORT) },
   { VLC_PPAPI_STATIC_STR_INIT("copyright_message"), VLC_PPAPI_STATIC_STR_INIT(COPYRIGHT_MESSAGE) },
   { VLC_PPAPI_STATIC_STR_INIT("copyright_years"), VLC_PPAPI_STATIC_STR_INIT(COPYRIGHT_YEARS) },
+  { VLC_PPAPI_STATIC_STR_INIT("license_msg"), VLC_PPAPI_STATIC_STR_INIT(LICENSE_MSG), },
+  { VLC_PPAPI_STATIC_STR_INIT("changeset"), VLC_PPAPI_STATIC_STR_INIT(libvlc_get_changeset()), },
 };
 
 JSV_OBJECT_TYPE_DESC(request, JSV_MATCH_UNDEFINED(),
