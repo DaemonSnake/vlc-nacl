@@ -379,6 +379,13 @@ checkfail "build && install prerequisites"
 
 VLC_SRC_DIR=$SRC_DIR/vlc
 VLC_BUILD_DIR=${BUILD_DIR}/vlc-${TARGET_TRIPLE}
+
+if [ $SRC_DIR/compile.sh -nt $VLC_BUILD_DIR/config.status ];
+then
+    msg "The build script was changed since the last build! Purging..."
+    rm -fr $VLC_BUILD_DIR
+fi
+
 make_dir $VLC_BUILD_DIR
 
 if [ ! -f $VLC_SRC_DIR/configure ]; then
