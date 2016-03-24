@@ -1,0 +1,49 @@
+From 4413676ff5fc0a608e948c0fb67de258a390028a Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Thu, 24 Mar 2016 16:47:51 -0500
+Subject: [PATCH] Don't even build remote access modules on NaCl.
+
+---
+ modules/access/Makefile.am      | 2 ++
+ modules/access/http/Makefile.am | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/modules/access/Makefile.am b/modules/access/Makefile.am
+index fa23bd8..4ee276d 100644
+--- a/modules/access/Makefile.am
++++ b/modules/access/Makefile.am
+@@ -361,6 +361,7 @@ EXTRA_LTLIBRARIES += libaccess_eyetv_plugin.la
+ 
+ ### Network streams ###
+ 
++if !HAVE_NACL
+ libftp_plugin_la_SOURCES = access/ftp.c
+ libftp_plugin_la_LIBADD = $(SOCKET_LIBS)
+ access_LTLIBRARIES += libftp_plugin.la
+@@ -450,6 +451,7 @@ access_LTLIBRARIES += libavio_plugin.la
+ endif
+ endif
+ 
++endif
+ 
+ ### Misc ###
+ 
+diff --git a/modules/access/http/Makefile.am b/modules/access/http/Makefile.am
+index d447a42..37a7004 100644
+--- a/modules/access/http/Makefile.am
++++ b/modules/access/http/Makefile.am
+@@ -1,3 +1,5 @@
++if !HAVE_NACL
++
+ libhttps_plugin_la_SOURCES = access/http/access.c
+ libhttps_plugin_la_LIBADD = libvlc_http.la
+ access_LTLIBRARIES += libhttps_plugin.la
+@@ -52,3 +54,5 @@ check_PROGRAMS += hpack_test hpackenc_test \
+ TESTS += hpack_test hpackenc_test \
+ 	h2frame_test h2output_test h2conn_test h1conn_test h1chunked_test \
+ 	http_msg_test http_file_test http_tunnel_test
++
++endif
+-- 
+2.5.0
+

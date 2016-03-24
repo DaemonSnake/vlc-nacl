@@ -1,0 +1,25 @@
+From 5730d1c36af51cf111b84db78afaca39782dcb62 Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Thu, 24 Mar 2016 14:32:52 -0500
+Subject: [PATCH] NaCl needs flockfile stubs.
+
+---
+ compat/flockfile.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/compat/flockfile.c b/compat/flockfile.c
+index d01fd1f..43e0992 100644
+--- a/compat/flockfile.c
++++ b/compat/flockfile.c
+@@ -24,7 +24,7 @@
+ 
+ #include <stdio.h>
+ 
+-#ifdef _WIN32
++#if defined(_WIN32) || defined(__native_client__)
+ # ifndef HAVE__LOCK_FILE
+ #  warning Broken SDK: VLC logs will be garbage.
+ #  define _lock_file(s) ((void)(s))
+-- 
+2.5.0
+
