@@ -12,7 +12,7 @@ fi
 #############
 
 msg() {
-    echo "compile.sh: $*"
+    echo "compile: $*"
 }
 
 step_msg() {
@@ -51,20 +51,20 @@ make_dir() {
 showvar() {
     local T
     eval T=\$$1
-    printf "compile.sh: %-26s := %s %s\n" $1 "$T" "$2"
+    printf "compile: %-26s := %s %s\n" $1 "$T" "$2"
 }
 
 putvar() {
     local T
     eval T=\$$1
-    printf "compile.sh: %-26s := %s %s\n" $1 "$T" "$2"
+    printf "compile: %-26s := %s %s\n" $1 "$T" "$2"
     printf "export %s=%s\n" $1 "$T" >> ${BUILD_DIR}/config.tmp
 }
 
 putstrvar() {
     local T
     eval T=\$$1
-    printf "compile.sh: %-26s := %s %s\n" $1 "$T" "$2"
+    printf "compile: %-26s := %s %s\n" $1 "$T" "$2"
     printf "export %s=\"%s\"\n" $1 "$T" >> ${BUILD_DIR}/config.tmp
 }
 
