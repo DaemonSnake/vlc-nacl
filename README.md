@@ -25,7 +25,7 @@ Before we can get started, we need to procure a few things from the Internet:
 
 Where `$ARCH` is one of `le32`, `i686`, `x86_64`, or `arm`, `$NACL_SDK_ROOT`
 points to your Pepper SDK root, and `$WEBPORTS_ROOT` points to the root of your
-`webports` checkout. `compile.sh` will fetch and build the needed `webports`
+`webports` checkout. `compile` will fetch and build the needed `webports`
 packages for you.
 
 # Embedding VLC
