@@ -21,7 +21,7 @@ Before we can get started, we need to procure a few things from the Internet:
 
 ### Build!
 
-    $ ./compile --arch $ARCH --pepper-root $NACL_SDK_ROOT --webports-root $WEBPORTS_ROOT
+    $ ./configure && ./compile --arch $ARCH --pepper-root $NACL_SDK_ROOT --webports-root $WEBPORTS_ROOT
 
 Where `$ARCH` is one of `le32`, `i686`, `x86_64`, or `arm`, `$NACL_SDK_ROOT`
 points to your Pepper SDK root, and `$WEBPORTS_ROOT` points to the root of your
