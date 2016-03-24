@@ -1,0 +1,24 @@
+From e0b3566f8e76715ced74fcd22ee80225a51d7364 Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Thu, 10 Mar 2016 18:10:29 -0600
+Subject: [PATCH] Add the `nacl` target.
+
+---
+ configure.ac | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configure.ac b/configure.ac
+index 26bb3ac..b33c5d7 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -304,6 +304,7 @@ AM_CONDITIONAL(HAVE_WIN64,   test "${HAVE_WIN64}" = "1")
+ AM_CONDITIONAL(HAVE_IOS,     test "${HAVE_IOS}" = "1")
+ AM_CONDITIONAL(HAVE_OSX,     test "${HAVE_OSX}" = "1")
+ AM_CONDITIONAL(HAVE_TVOS,    test "${HAVE_TVOS}" = "1")
++AM_CONDITIONAL(HAVE_NACL,    test "${SYS}" = "nacl")
+ 
+ dnl
+ dnl Sadly autoconf does not think about testing foo.exe when ask to test
+-- 
+2.5.0
+
