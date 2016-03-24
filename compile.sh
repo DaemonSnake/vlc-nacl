@@ -407,7 +407,7 @@ cd ${BUILD_DIR}/vlc-${TARGET_TRIPLE}
 if [ ! -e ./config.h ]; then
     step_msg "Configuring VLC..."
 
-    CPPFLAGS="$CPPFLAGS" \
+    CPPFLAGS="$CFLAGS" \
             CFLAGS="$CFLAGS ${EXTRA_CFLAGS}" \
             CXXFLAGS="$CFLAGS ${EXTRA_CXXFLAGS}" \
             LDFLAGS="$LDFLAGS" \
