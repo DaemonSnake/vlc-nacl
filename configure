@@ -76,7 +76,15 @@ fi
 if [ $PATCH_VLC -ne 0 ]
 then
     msg "Patching"
-    git am ${SRC_DIR}/patches
+    cd ${SRC_DIR}/vlc
+
+    for patch in `echo ${SRC_DIR}/patches/* | sort`;
+    do
+        git am $patch
+        checkfail "failed to apply patch"
+    done
+
+    cd ${SRC_DIR}
 fi
 
 step_msg "Done!"
