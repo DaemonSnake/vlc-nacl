@@ -317,7 +317,7 @@ typedef struct instance_data_t {
 } instance_data_t;
 
 static vlc_rwlock_t g_instance_data_mtx = VLC_STATIC_RWLOCK;
-static DECL_ARRAY(instance_data_t) g_instance_data = ARRAY_STATIC_INIT;
+static DECL_ARRAY(instance_data_t) g_instance_data = { 0, 0, NULL };
 
 /*static instance_data_t add_id_ref(instance_data_t* inst) {
   uint8_t prev = atomic_fetch_add(&inst->refs, 1);
