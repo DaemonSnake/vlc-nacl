@@ -21,16 +21,18 @@ OBJS := $(OBJS:%.cpp=$(OBJ_DIR)/%.o)
 
 all: $(BUILD_DIR)/vlc.pexe $(BUILD_DIR)/vlc.nexe
 
+-include $(OBJS:.o=.d)
+
 $(OBJ_DIR)/%.o: %.c
 	mkdir -p $(shell dirname $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -MP -MD $(CFLAGS) -c $< -o $@
 $(OBJ_DIR)/%.o: %.cpp
 	mkdir -p $(shell dirname $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -MP -MD $(CXXFLAGS) -c $< -o $@
 
 ifeq ($(PNACL),1)
 $(OBJ_DIR)/vlc.bugged.pexe: $(OBJS)
-	$(CXX) $^ -o $@ $(LDFLAGS) -lvlc -lvlccore -lcompat -lglibc-compat -lppapi -lppapi_gles2 -lnacl_io
+	$(CXX) -MP -MD $^ -o $@ $(LDFLAGS) -lvlc -lvlccore -lcompat -lglibc-compat -lppapi -lppapi_gles2 -lnacl_io
 
 $(BUILD_DIR)/vlc.debug.pexe: $(OBJ_DIR)/vlc.bugged.pexe
 	$(OPT) -S $< | sed s/@memcpy/@__memcpy/g | $(OPT) - -o $@
