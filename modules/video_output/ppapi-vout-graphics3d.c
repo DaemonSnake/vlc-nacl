@@ -20,6 +20,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
+#define MODULE_NAME ppapi_vout_graphics3d
+
 #include <stdlib.h>
 #include <assert.h>
 
@@ -28,14 +30,16 @@
 #include <vlc_vout_display.h>
 #include <vlc_opengl.h>
 #include <vlc_ppapi.h>
-#include "../opengl.h"
+
+#define USE_OPENGL_ES 2
+#include "../modules/video_output/opengl.h"
 
 static int  PPAPIDisplayOpen (vlc_object_t *);
 static void PPAPIDisplayClose (vlc_object_t *);
 
 vlc_module_begin ()
-    set_shortname(N_("ppapi-vout-graphics3d"))
-    set_description(N_("OpenGL ES 2 output via PPAPI."))
+    set_shortname("ppapi-vout-graphics3d")
+    set_description("OpenGL ES 2 output via PPAPI.")
     set_category(CAT_VIDEO)
     set_subcategory(SUBCAT_VIDEO_VOUT)
     set_capability("vout display", 1)
@@ -128,14 +132,14 @@ static int PPAPIDisplayOpen(vlc_object_t* obj) {
     return VLC_EGENERIC;
   }
 
-  vout_window_t* surface = vout_display_NewWindow(vd, VOUT_WINDOW_TYPE_PPAPI);
+  vout_window_t* surface = vout_display_NewWindow(vd, VOUT_WINDOW_TYPE_PPAPI_G3D);
   if (surface == NULL) {
     msg_Err(vd, "window not available");
     vlc_getPPAPI_Instance()->BindGraphics(instance, 0);
     vlc_subResReference(context);
     return VLC_ENOMEM;
   }
-  surface->handle.pp_resource = context;
+  surface->handle.pp_context = context;
   surface->display.pp_instance = instance;
 
   vlc_gl_t* gl = vlc_gl_Create(surface, VLC_OPENGL_ES2, "ppapi_vout_gl");

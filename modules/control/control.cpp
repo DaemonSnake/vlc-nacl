@@ -16,6 +16,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
+#define MODULE_NAME ppapi_control
+
 #include <vlc_common.h>
 #include <vlc_plugin.h>
 #include <vlc_ppapi.h>

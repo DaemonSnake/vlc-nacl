@@ -20,6 +20,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
+#define MODULE_NAME ppapi_vout_window
+
 #include <stdlib.h>
 #include <assert.h>
 
@@ -33,8 +35,8 @@ static void PPAPIWindowClose(vout_window_t*);
 static int  PPAPIWindowControl(vout_window_t*, int, va_list);
 
 vlc_module_begin ()
-    set_shortname(N_("ppapi-vout-window"))
-    set_description(N_("A PPAPI \"window\"."))
+    set_shortname("ppapi-vout-window")
+    set_description("A PPAPI \"window\".")
     set_category(CAT_VIDEO)
     set_subcategory(SUBCAT_VIDEO_VOUT)
     set_capability("vout window", 1)
@@ -48,7 +50,7 @@ struct vout_window_sys_t {
 static int PPAPIWindowOpen(vout_window_t* wnd, const vout_window_cfg_t* cfg) {
   VLC_UNUSED(cfg);
   if(wnd->type != VOUT_WINDOW_TYPE_INVALID &&
-     wnd->type != VOUT_WINDOW_TYPE_PPAPI) {
+     wnd->type != VOUT_WINDOW_TYPE_PPAPI_G3D) {
     return VLC_EGENERIC;
   }
 
@@ -72,8 +74,8 @@ static int PPAPIWindowOpen(vout_window_t* wnd, const vout_window_cfg_t* cfg) {
   wnd->sys = sys;
   wnd->control = PPAPIWindowControl;
 
-  wnd->type = VOUT_WINDOW_TYPE_PPAPI;
-  wnd->handle.pp_resource = 0;
+  wnd->type = VOUT_WINDOW_TYPE_PPAPI_G3D;
+  wnd->handle.pp_context = 0;
 
   return VLC_SUCCESS;
 }

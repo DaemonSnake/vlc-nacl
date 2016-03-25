@@ -23,6 +23,8 @@
 
 // XXX: Handle remote file updates.
 
+#define MODULE_NAME ppapi_access
+
 #include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
@@ -55,7 +57,7 @@ static int32_t open_cache_file(access_sys_t* sys, const size_t meta_index, PP_Re
 static int32_t resize_meta(access_sys_t* sys, const size_t meta, const uint64_t new_size);
 static void close_loader(access_sys_t* sys);
 
-// whoever decided that HTTP headers should be case insensitive was soooo high.
+// whomever decided that HTTP headers should be case insensitive was soooo high.
 static bool case_insensitive_strncmp(const char* left, const char* right, const size_t len);
 
 vlc_module_begin()

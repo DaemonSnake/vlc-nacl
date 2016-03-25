@@ -16,6 +16,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
+#define MODULE_NAME ppapi_aout
+
 #include <vlc_common.h>
 #include <vlc_atomic.h>
 #include <vlc_block_helper.h>
@@ -80,7 +82,7 @@ struct aout_sys_t {
 
 vlc_module_begin()
     set_shortname("PPAPI Audio")
-    set_description(N_("Output audio using the PPAPI"))
+    set_description("Output audio using the PPAPI")
     set_category(CAT_AUDIO)
     set_subcategory(SUBCAT_AUDIO_AOUT)
     set_capability("audio output", 50)

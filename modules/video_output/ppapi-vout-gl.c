@@ -20,6 +20,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
+#define MODULE_NAME ppapi_vout_gl
+
 #include <stdint.h>
 #include <assert.h>
 
@@ -121,8 +123,8 @@ static void Close(vlc_object_t* obj) {
 }
 static int Open(vlc_object_t *obj) {
   vlc_gl_t *gl = (vlc_gl_t*)obj;
-  if(gl->surface->type != VOUT_WINDOW_TYPE_PPAPI ||
-     gl->surface->handle.pp_resource == 0 ||
+  if(gl->surface->type != VOUT_WINDOW_TYPE_PPAPI_G3D ||
+     gl->surface->handle.pp_context == 0 ||
      gl->surface->display.pp_instance == 0) {
     return VLC_EGENERIC;
   }
@@ -137,7 +139,7 @@ static int Open(vlc_object_t *obj) {
     return VLC_ENOMEM;
   }
 
-  sys->context = vlc_addResReference(gl->surface->handle.pp_resource);
+  sys->context = vlc_addResReference(gl->surface->handle.pp_context);
   sys->instance = instance;
   sys->swapper_loop = loop;
   sys->gl = gl;
@@ -159,8 +161,8 @@ static int Open(vlc_object_t *obj) {
 }
 
 vlc_module_begin()
-    set_shortname(N_("ppapi-vout-gl"))
-    set_description(N_("PPAPI interface for OpenGL"))
+    set_shortname("ppapi-vout-gl")
+    set_description("PPAPI interface for OpenGL")
     set_category(CAT_VIDEO)
     set_subcategory(SUBCAT_VIDEO_VOUT)
     set_capability("opengl es2", 50)
