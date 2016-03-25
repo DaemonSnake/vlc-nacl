@@ -1,7 +1,22 @@
+/*****************************************************************************
+ * Copyright © 2015 Cadonix, Richard Diamond
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+ *****************************************************************************/
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include <config.h>
 
 #include <stdlib.h>
 #include <assert.h>
@@ -47,12 +62,6 @@ VLC_PPAPI_MODULE_NAME("vlc");
     VLC_UNUSED(one); VLC_UNUSED(two);                     \
     return VLC_EGENERIC; }
 
-PLUGIN_INIT_SYMBOL(ball)
-PLUGIN_INIT_SYMBOL(mono)
-PLUGIN_INIT_SYMBOL(headphone_channel_mixer)
-PLUGIN_INIT_SYMBOL(https)
-PLUGIN_INIT_SYMBOL(plaintext_keystore)
-PLUGIN_INIT_SYMBOL(access_concat)
 #undef PLUGIN_INIT_SYMBOL
 
 #define PLUGIN_INIT_SYMBOL(name)                \
@@ -267,7 +276,9 @@ static PP_Bool vlc_did_create(PP_Instance instance, uint32_t _argc,
   } else {
     new_inst->media_player = media_player;
   }
-  libvlc_media_player_set_ppapi_instance_for_g3d(media_player, instance);
+  var_Create(media_player, "ppapi-instance", VLC_VAR_INTEGER);
+  var_SetInteger(media_player, "ppapi-instance", instance);
+  var_SetString(media_player, "vout", "ppapi_vout_graphics3d");
 
   if(-1 == libvlc_add_intf(vlc_inst, "ppapi_control")) {
     vlc_ppapi_log_error(instance, "failed to start `ppapi-control`");
