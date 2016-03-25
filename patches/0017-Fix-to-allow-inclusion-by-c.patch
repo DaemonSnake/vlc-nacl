@@ -1,0 +1,30 @@
+From 82dea4ac86b40435169bb091d0002c429ac84721 Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Thu, 24 Mar 2016 21:09:25 -0500
+Subject: [PATCH] Fix to allow inclusion by c++.
+
+---
+ include/vlc_md5.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/vlc_md5.h b/include/vlc_md5.h
+index 0d61b39..e72ff2f 100644
+--- a/include/vlc_md5.h
++++ b/include/vlc_md5.h
+@@ -47,11 +47,11 @@ VLC_API void EndMD5( struct md5_s * );
+  */
+ static inline char * psz_md5_hash( struct md5_s *md5_s )
+ {
+-    char *psz = malloc( 33 ); /* md5 string is 32 bytes + NULL character */
++    char *psz = (char*)malloc( 33 ); /* md5 string is 32 bytes + NULL character */
+     if( likely(psz) )
+     {
+         for( int i = 0; i < 16; i++ )
+-            sprintf( &psz[2*i], "%02"PRIx8, md5_s->buf[i] );
++            sprintf( &psz[2*i], "%02" PRIx8, md5_s->buf[i] );
+     }
+     return psz;
+ }
+-- 
+2.5.0
+

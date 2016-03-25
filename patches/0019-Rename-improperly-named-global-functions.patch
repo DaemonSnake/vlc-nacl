@@ -1,0 +1,231 @@
+From 1ebac3aad3f457d58c72d104c134d39bd5ef98e4 Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Thu, 24 Mar 2016 21:10:47 -0500
+Subject: [PATCH] Rename improperly named global functions.
+
+---
+ modules/access/archive/access.c  | 10 +++++-----
+ modules/access/archive/archive.c |  4 ++--
+ modules/access/archive/archive.h |  8 ++++----
+ modules/access/archive/stream.c  |  8 ++++----
+ modules/access/zip/zip.h         |  8 ++++----
+ modules/access/zip/zipaccess.c   |  4 ++--
+ modules/access/zip/zipstream.c   |  9 ++++-----
+ 7 files changed, 25 insertions(+), 26 deletions(-)
+
+diff --git a/modules/access/archive/access.c b/modules/access/archive/access.c
+index 811149e..26a65f4 100644
+--- a/modules/access/archive/access.c
++++ b/modules/access/archive/access.c
+@@ -303,7 +303,7 @@ static int Control(access_t *p_access, int i_query, va_list args)
+     return VLC_SUCCESS;
+ }
+ 
+-int AccessOpen(vlc_object_t *p_object)
++int ArchiveAccessOpen(vlc_object_t *p_object)
+ {
+     access_t *p_access = (access_t*)p_object;
+     const char *sep = strchr(p_access->psz_location, ARCHIVE_SEP_CHAR);
+@@ -357,7 +357,7 @@ int AccessOpen(vlc_object_t *p_object)
+             free(ppsz_files[i]);
+         free(ppsz_files);
+         free(psz_base);
+-        AccessClose(p_object);
++        ArchiveAccessClose(p_object);
+         return VLC_ENOMEM;
+     }
+ 
+@@ -380,7 +380,7 @@ int AccessOpen(vlc_object_t *p_object)
+     {
+         msg_Err(p_access, "can't open archive: %s",
+                 archive_error_string(p_sys->p_archive));
+-        AccessClose(p_object);
++        ArchiveAccessClose(p_object);
+         return VLC_EGENERIC;
+     }
+ 
+@@ -418,11 +418,11 @@ int AccessOpen(vlc_object_t *p_object)
+     return VLC_SUCCESS;
+ 
+ error:
+-    AccessClose(p_object);
++    ArchiveAccessClose(p_object);
+     return VLC_EGENERIC;
+ }
+ 
+-void AccessClose(vlc_object_t *p_object)
++void ArchiveAccessClose(vlc_object_t *p_object)
+ {
+     access_t *p_access = (access_t*)p_object;
+     access_sys_t *p_sys = p_access->p_sys;
+diff --git a/modules/access/archive/archive.c b/modules/access/archive/archive.c
+index 212937a..eedc415 100644
+--- a/modules/access/archive/archive.c
++++ b/modules/access/archive/archive.c
+@@ -35,13 +35,13 @@ vlc_module_begin()
+     set_description( N_( "libarchive access" ) )
+     set_capability( "access", 0 )
+     add_shortcut( "archive" )
+-    set_callbacks( AccessOpen, AccessClose )
++    set_callbacks( ArchiveAccessOpen, ArchiveAccessClose )
+     add_submodule()
+         set_shortname( "libarchive" )
+         set_subcategory( SUBCAT_INPUT_STREAM_FILTER )
+         set_description( N_( "libarchive stream filter" ) )
+         set_capability( "stream_filter", 14 ) /* less than rar and gzip */
+-        set_callbacks( StreamOpen, StreamClose )
++        set_callbacks( ArchiveStreamOpen, ArchiveStreamClose )
+ vlc_module_end()
+ 
+ bool ProbeArchiveFormat(stream_t *p_stream)
+diff --git a/modules/access/archive/archive.h b/modules/access/archive/archive.h
+index 4e6d7cc..77dd362 100644
+--- a/modules/access/archive/archive.h
++++ b/modules/access/archive/archive.h
+@@ -24,11 +24,11 @@
+ 
+ #include <vlc_common.h>
+ 
+-int AccessOpen(vlc_object_t *object);
+-void AccessClose(vlc_object_t *object);
++int ArchiveAccessOpen(vlc_object_t *object);
++void ArchiveAccessClose(vlc_object_t *object);
+ 
+-int StreamOpen(vlc_object_t *object);
+-void StreamClose(vlc_object_t *object);
++int ArchiveStreamOpen(vlc_object_t *object);
++void ArchiveStreamClose(vlc_object_t *object);
+ 
+ bool ProbeArchiveFormat(stream_t *p_stream);
+ 
+diff --git a/modules/access/archive/stream.c b/modules/access/archive/stream.c
+index 3d70725..2a22cee 100644
+--- a/modules/access/archive/stream.c
++++ b/modules/access/archive/stream.c
+@@ -158,7 +158,7 @@ static input_item_t *Browse(stream_t *p_stream)
+     return p_item;
+ }
+ 
+-int StreamOpen(vlc_object_t *p_object)
++int ArchiveStreamOpen(vlc_object_t *p_object)
+ {
+     stream_t *p_stream = (stream_t*) p_object;
+     stream_sys_t *p_sys;
+@@ -177,7 +177,7 @@ int StreamOpen(vlc_object_t *p_object)
+     {
+         msg_Err(p_stream, "can't create libarchive instance: %s",
+                 archive_error_string(p_sys->p_archive));
+-        StreamClose(p_object);
++        ArchiveStreamClose(p_object);
+         return VLC_EGENERIC;
+     }
+ 
+@@ -192,7 +192,7 @@ int StreamOpen(vlc_object_t *p_object)
+     {
+         msg_Err(p_stream, "can't open archive: %s",
+                 archive_error_string(p_sys->p_archive));
+-        StreamClose(p_object);
++        ArchiveStreamClose(p_object);
+         return VLC_EGENERIC;
+     }
+ 
+@@ -204,7 +204,7 @@ int StreamOpen(vlc_object_t *p_object)
+     return VLC_SUCCESS;
+ }
+ 
+-void StreamClose(vlc_object_t *object)
++void ArchiveStreamClose(vlc_object_t *object)
+ {
+     stream_t *p_stream = (stream_t*)object;
+     stream_sys_t *p_sys = p_stream->p_sys;
+diff --git a/modules/access/zip/zip.h b/modules/access/zip/zip.h
+index 7ef1460..eefb66e 100644
+--- a/modules/access/zip/zip.h
++++ b/modules/access/zip/zip.h
+@@ -48,14 +48,14 @@
+ /** **************************************************************************
+  * Module access points: stream_filter
+  *****************************************************************************/
+-int StreamOpen( vlc_object_t* );
+-void StreamClose( vlc_object_t* );
++int ZipStreamOpen( vlc_object_t* );
++void ZipStreamClose( vlc_object_t* );
+ 
+ /** **************************************************************************
+  * Module access points: access
+  *****************************************************************************/
+-int AccessOpen( vlc_object_t *p_this );
+-void AccessClose( vlc_object_t *p_this );
++int ZipAccessOpen( vlc_object_t *p_this );
++void ZipAccessClose( vlc_object_t *p_this );
+ 
+ /** Common function */
+ bool isAllowedChar( char c );
+diff --git a/modules/access/zip/zipaccess.c b/modules/access/zip/zipaccess.c
+index 9655ce4..db4835a 100644
+--- a/modules/access/zip/zipaccess.c
++++ b/modules/access/zip/zipaccess.c
+@@ -92,7 +92,7 @@ static char *unescapeXml( const char *psz_text )
+ /** **************************************************************************
+  * \brief Open access
+  *****************************************************************************/
+-int AccessOpen( vlc_object_t *p_this )
++int ZipAccessOpen( vlc_object_t *p_this )
+ {
+     access_t     *p_access = (access_t*)p_this;
+     access_sys_t *p_sys;
+@@ -203,7 +203,7 @@ exit:
+ /** **************************************************************************
+  * \brief Close access: free structures
+  *****************************************************************************/
+-void AccessClose( vlc_object_t *p_this )
++void ZipAccessClose( vlc_object_t *p_this )
+ {
+     access_t     *p_access = (access_t*)p_this;
+     access_sys_t *p_sys = p_access->p_sys;
+diff --git a/modules/access/zip/zipstream.c b/modules/access/zip/zipstream.c
+index 2a827b6..c5f9849 100644
+--- a/modules/access/zip/zipstream.c
++++ b/modules/access/zip/zipstream.c
+@@ -41,13 +41,13 @@ vlc_module_begin()
+     set_subcategory( SUBCAT_INPUT_STREAM_FILTER )
+     set_description( N_( "Zip files filter" ) )
+     set_capability( "stream_filter", 15 )
+-    set_callbacks( StreamOpen, StreamClose )
++    set_callbacks( ZipStreamOpen, ZipStreamClose )
+     add_submodule()
+         set_subcategory( SUBCAT_INPUT_ACCESS )
+         set_description( N_( "Zip access" ) )
+         set_capability( "access", 0 )
+         add_shortcut( "unzip", "zip" )
+-        set_callbacks( AccessOpen, AccessClose )
++        set_callbacks( ZipAccessOpen, ZipAccessClose )
+ vlc_module_end()
+ 
+ /** *************************************************************************
+@@ -167,7 +167,7 @@ static const int i_zip_marker = 4;
+ /** **************************************************************************
+  * Open
+  *****************************************************************************/
+-int StreamOpen( vlc_object_t *p_this )
++int ZipStreamOpen( vlc_object_t *p_this )
+ {
+     stream_t *s = (stream_t*) p_this;
+     stream_sys_t *p_sys;
+@@ -233,7 +233,7 @@ error:
+ /** *************************************************************************
+  * Close
+  ****************************************************************************/
+-void StreamClose( vlc_object_t *p_this )
++void ZipStreamClose( vlc_object_t *p_this )
+ {
+     stream_t *s = (stream_t*)p_this;
+     stream_sys_t *p_sys = s->p_sys;
+@@ -842,4 +842,3 @@ static int ZCALLBACK ZipIO_Error( void* opaque, void* stream )
+     (void)stream;
+     return 0;
+ }
+-
+-- 
+2.5.0
+

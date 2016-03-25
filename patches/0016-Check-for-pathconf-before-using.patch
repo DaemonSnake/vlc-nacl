@@ -1,0 +1,44 @@
+From 430f2f2da742bbe96b6f6fef4d9a6f3d45a0ca70 Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Thu, 24 Mar 2016 21:08:57 -0500
+Subject: [PATCH] Check for `pathconf` before using.
+
+---
+ configure.ac           | 2 +-
+ src/posix/filesystem.c | 7 ++++++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 8e5ccbc..542f542 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -575,7 +575,7 @@ need_libc=false
+ 
+ dnl Check for usual libc functions
+ AC_CHECK_DECLS([nanosleep],,,[#include <time.h>])
+-AC_CHECK_FUNCS([daemon fcntl flock fstatvfs fork getenv getpwuid_r isatty lstat memalign mkostemp mmap open_memstream openat pread posix_fadvise posix_madvise setlocale stricmp strnicmp strptime uselocale pthread_cond_timedwait_monotonic_np pthread_condattr_setclock strerror_l])
++AC_CHECK_FUNCS([daemon fcntl flock fstatvfs fork getenv getpwuid_r isatty lstat memalign mkostemp mmap open_memstream openat pread posix_fadvise posix_madvise setlocale stricmp strnicmp strptime uselocale pthread_cond_timedwait_monotonic_np pthread_condattr_setclock strerror_l, pathconf])
+ AC_REPLACE_FUNCS([atof atoll dirfd fdopendir ffsll flockfile fsync getdelim getpid lldiv nrand48 poll posix_memalign recvmsg rewind sendmsg setenv strcasecmp strcasestr strdup strlcpy strndup strnlen strnstr strsep strtof strtok_r strtoll swab tdestroy timegm timespec_get strverscmp])
+ AC_REPLACE_FUNCS([gettimeofday])
+ AC_CHECK_FUNCS(fdatasync,,
+diff --git a/src/posix/filesystem.c b/src/posix/filesystem.c
+index 3c33c1c..ccf2a37 100644
+--- a/src/posix/filesystem.c
++++ b/src/posix/filesystem.c
+@@ -170,7 +170,12 @@ int vlc_rename (const char *oldpath, const char *newpath)
+ 
+ char *vlc_getcwd (void)
+ {
+-    long path_max = pathconf (".", _PC_PATH_MAX);
++    long path_max;
++#ifdef HAVE_PATHCONF
++    path_max = pathconf (".", _PC_PATH_MAX);
++#else
++    path_max = -1;
++#endif
+     size_t size = (path_max == -1 || path_max > 4096) ? 4096 : path_max;
+ 
+     for (;; size *= 2)
+-- 
+2.5.0
+
