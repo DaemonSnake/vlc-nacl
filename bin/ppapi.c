@@ -19,6 +19,7 @@
 #include <vlc_ppapi.h>
 
 #include "../src/modules/modules.h"
+#include "../lib/media_player_internal.h"
 
 #include <ppapi/c/pp_module.h>
 
