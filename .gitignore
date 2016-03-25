@@ -9,7 +9,6 @@
 *.o
 *.so
 *.trs
-*.pc
 *.vlt
 *.class
 *.dmg
