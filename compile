@@ -349,7 +349,7 @@ if [ ! -e ./config.h ]; then
             ${EXTRA_PARAMS} ${VLC_CONFIGURE_ARGS} ${OPTS}
     checkfail "vlc: configure failed"
 
-    SET_MAKEFILE_O = 1
+    SET_MAKEFILE_O=1
 fi
 
 ############
