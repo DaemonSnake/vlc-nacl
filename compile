@@ -397,11 +397,16 @@ libtool_deps() {
     . $1
     local libname="`echo $old_library | sed 's/.*\/\?lib\(.*\)\.a/\1/'`"
 
-    LIBS="${LIBS} -l${libname}"
+    if [ $libname != "compat" ]; then
+        LIBS="${LIBS} -l${libname}"
+    fi
 
     local DEP_LIBS="`printf "%s\n" $dependency_libs`"
     for arg in $DEP_LIBS; do
         case $arg in
+            # If we add these every time, we'll have a lot of extra libraries.
+            -lc++|-lcompat|-lpthread|-lm)
+            ;;
             -*)
                 LIBS="${LIBS} $arg"
                 ;;

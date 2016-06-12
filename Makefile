@@ -32,7 +32,7 @@ $(OBJ_DIR)/%.o: %.cpp
 
 ifeq ($(PNACL),1)
 $(OBJ_DIR)/vlc.bugged.pexe: $(OBJS)
-	$(CXX) -MP -MD $^ -o $@ $(LDFLAGS) -lvlc -lvlccore -lcompat -lglibc-compat -lppapi -lppapi_gles2 -lnacl_io
+	$(CXX) -MP -MD $^ -o $@ $(LDFLAGS) -lvlc -lvlccore -lcompat -lglibc-compat -lppapi -lppapi_gles2 -lnacl_io -lc++ -lpthread -lm
 
 $(BUILD_DIR)/vlc.debug.pexe: $(OBJ_DIR)/vlc.bugged.pexe
 	$(OPT) -S $< | sed s/@memcpy/@__memcpy/g | $(OPT) - -o $@
