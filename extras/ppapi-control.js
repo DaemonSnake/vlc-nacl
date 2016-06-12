@@ -302,7 +302,7 @@ VlcInstance = function (element) {
     define_property(this, "length", false);
 
     define_property(this, "state", true);
-    define_property(this, "item", false);
+    define_property(this, "item", true);
 
     function Video(parent) {
       this.parent = parent;
