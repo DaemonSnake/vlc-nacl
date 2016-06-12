@@ -178,12 +178,14 @@ static PP_Bool remove_instance(instance_t* instance) {
   instance_t* cur_array = get_instances_array(g_instances);
   instance_t* new_array = get_instances_array(new_instances);
 
-  const size_t slice_start = (size_t)(instance - cur_array);
-  const size_t slice_end   = slice_start + 1;
-  memmove(new_array, cur_array, (size_t)(instance - cur_array));
-  memmove((uint8_t*)new_array + slice_start,
-          (uint8_t*)cur_array + slice_end,
-          new_bytes - slice_end);
+  if(new_instances->count != 0) {
+    const size_t slice_start = (size_t)(instance - cur_array);
+    const size_t slice_end   = slice_start + 1;
+    memmove(new_array, cur_array, (size_t)(instance - cur_array));
+    memmove((uint8_t*)new_array + slice_start,
+            (uint8_t*)cur_array + slice_end,
+            new_bytes - slice_end);
+  }
 
   instances_t* old_instances = g_instances;
   g_instances = new_instances;
