@@ -179,7 +179,7 @@ VLC_CONFIGURE_ARGS="--disable-shared --enable-static --disable-vlc --disable-a52
 # VLC MODULE BLACKLIST #
 ########################
 
-VLC_MODULE_BLACKLIST="
+VLC_MODULE_BLACKLIST="syslog
 "
 
 #########
