@@ -90,6 +90,7 @@ RELEASE=0
 VERBOSE_MAKE=0
 
 CLEAN=0
+SET_MAKEFILE_O=0
 
 # load the config file:
 if [ -f ${BUILD_DIR}/config.sh ]; then
@@ -122,12 +123,14 @@ while [ $# -gt 0 ]; do
         --release)
             if [ $RELEASE -eq 0 ]; then
                 CLEAN=1
+                SET_MAKEFILE_O=1
             fi
             RELEASE=1
             ;;
         --debug)
             if [ $RELEASE -eq 1 ]; then
                 CLEAN=1
+                SET_MAKEFILE_O=1
             fi
             RELEASE=0
             ;;
@@ -164,6 +167,10 @@ putvar VERBOSE_MAKE
 # CONFIGURE DONE
 
 make_dir ${BUILD_DIR}
+if [ -f ${BUILD_DIR}/config.sh ]; then
+    # We need to override the `Makefile`s in the build dir to use -O0 instead of -O2 for debugging.
+    SET_MAKEFILE_O=1
+fi
 move_if_changed ${BUILD_DIR}/config.tmp ${BUILD_DIR}/config.sh
 rm -f ${BUILD_DIR}/config.tmp
 
@@ -341,11 +348,23 @@ if [ ! -e ./config.h ]; then
             sh $VLC_SRC_DIR/configure --host=$TARGET_TRIPLE --target=$TARGET_TRIPLE \
             ${EXTRA_PARAMS} ${VLC_CONFIGURE_ARGS} ${OPTS}
     checkfail "vlc: configure failed"
+
+    SET_MAKEFILE_O = 1
 fi
 
 ############
 # BUILDING #
 ############
+
+if [ $SET_MAKEFILE_O -ne 0 ]; then
+    if [ $RELEASE -eq 0 ]; then
+        OPT_LEVEL="\-O0"
+    else
+        OPT_LEVEL="\-O2"
+    fi
+
+    for i in `find $BUILD_DIR -name Makefile`; do sed -i "s/\-O[0-3sz]/${OPT_LEVEL}/g" $i; done
+fi
 
 step_msg "Building VLC"
 $MAKE $MAKEFLAGS V=$VERBOSE_MAKE
