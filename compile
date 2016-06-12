@@ -234,7 +234,7 @@ fi
 ##########
 # CFLAGS #
 ##########
-if [ "$NO_OPTIM" = "1" ];
+if [ $RELEASE -eq 0 ];
 then
      CFLAGS="-g -O0"
 else
