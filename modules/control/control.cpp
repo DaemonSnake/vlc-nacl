@@ -448,7 +448,11 @@ static int InputEvent(vlc_object_t *p_this, char const *psz_cmd,
   PP_Var value = PP_MakeUndefined();
   input_thread_t* input = playlist_CurrentInput(pl_Get(sys->parent));
 
-  bool drop_input = true;
+  bool drop_input = input != NULL;
+
+  if(input == NULL) {
+    goto end;
+  }
 
   switch (event_type) {
   case INPUT_EVENT_STATE: {
@@ -487,6 +491,8 @@ static int InputEvent(vlc_object_t *p_this, char const *psz_cmd,
 
   default: break;
   }
+
+ end:
 
   idict->Set(event,
              vlc_ppapi_mk_str(&value_key),
