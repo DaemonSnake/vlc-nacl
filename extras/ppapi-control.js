@@ -29,7 +29,7 @@ VlcInstance = function (element) {
   }
 
   // Constants
-  define_constant("API_VERSION", 0); // THIS NEEDS TO BE KEPT IN SYNC WITH `ppapi-control.cpp`
+  define_constant("API_VERSION", 1); // THIS NEEDS TO BE KEPT IN SYNC WITH `ppapi-control.cpp`
   // Constants
 
   // Event IDs
