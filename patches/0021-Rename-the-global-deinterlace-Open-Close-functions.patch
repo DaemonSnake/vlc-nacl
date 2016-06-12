@@ -1,0 +1,80 @@
+From def5b3f38c9a1c114df81ef41cb9640a89b7679f Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Sat, 11 Jun 2016 22:58:46 -0500
+Subject: [PATCH] Rename the global deinterlace `Open` && `Close` functions.
+
+---
+ modules/video_filter/deinterlace/deinterlace.c |  6 +++---
+ modules/video_filter/deinterlace/deinterlace.h | 11 +++++++++--
+ 2 files changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/modules/video_filter/deinterlace/deinterlace.c b/modules/video_filter/deinterlace/deinterlace.c
+index b1676a4..19aa061 100644
+--- a/modules/video_filter/deinterlace/deinterlace.c
++++ b/modules/video_filter/deinterlace/deinterlace.c
+@@ -112,7 +112,7 @@ vlc_module_begin ()
+         change_integer_list( phosphor_dimmer_list, phosphor_dimmer_list_text )
+         change_safe ()
+     add_shortcut( "deinterlace" )
+-    set_callbacks( Open, Close )
++    set_callbacks( DeinterlaceOpen, DeinterlaceClose )
+ vlc_module_end ()
+ 
+ /*****************************************************************************
+@@ -602,7 +602,7 @@ int Mouse( filter_t *p_filter,
+  * Open
+  *****************************************************************************/
+ 
+-int Open( vlc_object_t *p_this )
++int DeinterlaceOpen( vlc_object_t *p_this )
+ {
+     filter_t *p_filter = (filter_t*)p_this;
+     filter_sys_t *p_sys;
+@@ -769,7 +769,7 @@ notsupp:
+  * Close: clean up the filter
+  *****************************************************************************/
+ 
+-void Close( vlc_object_t *p_this )
++void DeinterlaceClose( vlc_object_t *p_this )
+ {
+     filter_t *p_filter = (filter_t*)p_this;
+ 
+diff --git a/modules/video_filter/deinterlace/deinterlace.h b/modules/video_filter/deinterlace/deinterlace.h
+index fd605dc..efa5ae2 100644
+--- a/modules/video_filter/deinterlace/deinterlace.h
++++ b/modules/video_filter/deinterlace/deinterlace.h
+@@ -123,6 +123,9 @@ struct filter_sys_t
+     ivtc_sys_t ivtc;         /**< IVTC algorithm state. */
+ };
+ 
++int DeinterlaceOpen(vlc_object_t* p_this);
++void DeinterlaceClose(vlc_object_t* p_this);
++
+ /*****************************************************************************
+  * video filter2 functions
+  *****************************************************************************/
+@@ -191,7 +194,9 @@ picture_t *Deinterlace( filter_t *p_filter, picture_t *p_pic );
+  * @see IsChromaSupported()
+  * @see SetFilterMethod()
+  */
+-int Open( vlc_object_t *p_this );
++static inline int Open( vlc_object_t *p_this ) {
++  return DeinterlaceOpen(p_this);
++}
+ 
+ /**
+  * Resets the filter state, including resetting all algorithm-specific state
+@@ -238,7 +243,9 @@ int Mouse( filter_t *p_filter,
+  * Stops and uninitializes the filter, and deallocates memory.
+  * @param p_this The filter instance as vlc_object_t.
+  */
+-void Close( vlc_object_t *p_this );
++static inline void Close( vlc_object_t *p_this ) {
++  DeinterlaceClose(p_this);
++}
+ 
+ /*****************************************************************************
+  * Extra documentation
+-- 
+2.7.4
+

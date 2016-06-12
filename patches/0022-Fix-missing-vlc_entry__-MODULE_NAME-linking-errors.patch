@@ -1,0 +1,140 @@
+From 6f65729a291cc5c5ae16e37a1bcac1169658d646 Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Sun, 12 Jun 2016 13:48:15 -0500
+Subject: [PATCH] Fix missing `vlc_entry__$MODULE_NAME` linking errors.
+
+---
+ modules/access/Makefile.am       |  4 ++++
+ modules/audio_filter/Makefile.am |  4 ++++
+ modules/keystore/Makefile.am     |  2 ++
+ modules/logger/Makefile.am       |  2 ++
+ modules/packetizer/Makefile.am   | 12 +++++++++++-
+ 5 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/modules/access/Makefile.am b/modules/access/Makefile.am
+index 4ee276d..0ae42a7 100644
+--- a/modules/access/Makefile.am
++++ b/modules/access/Makefile.am
+@@ -30,10 +30,12 @@ libidummy_plugin_la_SOURCES = access/idummy.c
+ access_LTLIBRARIES += libidummy_plugin.la
+ 
+ libimem_plugin_la_SOURCES = access/imem-access.c
++libimem_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ libimem_plugin_la_LIBADD = $(LIBM)
+ access_LTLIBRARIES += libimem_plugin.la
+ 
+ libaccess_imem_plugin_la_SOURCES = access/imem.c
++libaccess_imem_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ access_LTLIBRARIES += libaccess_imem_plugin.la
+ 
+ librar_plugin_la_SOURCES = access/rar/rar.c access/rar/rar.h \
+@@ -300,6 +302,7 @@ access_LTLIBRARIES += $(LTLIBlibbluray)
+ EXTRA_LTLIBRARIES += liblibbluray_plugin.la
+ 
+ libaccess_bd_plugin_la_SOURCES = access/bd/bd.c access/bd/mpls.c access/bd/mpls.h access/bd/clpi.c access/bd/clpi.h
++libaccess_bd_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ access_LTLIBRARIES += libaccess_bd_plugin.la
+ 
+ 
+@@ -456,6 +459,7 @@ endif
+ ### Misc ###
+ 
+ libaccess_concat_plugin_la_SOURCES = access/concat.c
++libaccess_concat_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ access_LTLIBRARIES += libaccess_concat_plugin.la
+ 
+ libaccess_mtp_plugin_la_SOURCES = access/mtp.c
+diff --git a/modules/audio_filter/Makefile.am b/modules/audio_filter/Makefile.am
+index da23f7e..6cc2eb4 100644
+--- a/modules/audio_filter/Makefile.am
++++ b/modules/audio_filter/Makefile.am
+@@ -46,14 +46,17 @@ audio_filter_LTLIBRARIES = \
+ # Channel mixers
+ libdolby_surround_decoder_plugin_la_SOURCES = \
+ 	audio_filter/channel_mixer/dolby.c
++libdolby_surround_decoder_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ libheadphone_channel_mixer_plugin_la_SOURCES = \
+ 	audio_filter/channel_mixer/headphone.c
++libheadphone_channel_mixer_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ libheadphone_channel_mixer_plugin_la_LIBADD = $(LIBM)
+ libmono_plugin_la_SOURCES = audio_filter/channel_mixer/mono.c
+ libmono_plugin_la_LIBADD = $(LIBM)
+ libremap_plugin_la_SOURCES = audio_filter/channel_mixer/remap.c
+ libtrivial_channel_mixer_plugin_la_SOURCES = \
+ 	audio_filter/channel_mixer/trivial.c
++libtrivial_channel_mixer_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ libsimple_channel_mixer_plugin_la_SOURCES = \
+ 	audio_filter/channel_mixer/simple.c
+ libsimple_channel_mixer_plugin_la_CFLAGS =
+@@ -111,6 +114,7 @@ libbandlimited_resampler_plugin_la_SOURCES = \
+ 	audio_filter/resampler/bandlimited.c \
+ 	audio_filter/resampler/bandlimited.h
+ libugly_resampler_plugin_la_SOURCES = audio_filter/resampler/ugly.c
++libugly_resampler_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ libsamplerate_plugin_la_SOURCES = audio_filter/resampler/src.c
+ libsamplerate_plugin_la_CPPFLAGS = $(AM_CPPFLAGS) $(SAMPLERATE_CFLAGS)
+ libsamplerate_plugin_la_LDFLAGS = $(AM_LDFLAGS) -rpath '$(audio_filterdir)'
+diff --git a/modules/keystore/Makefile.am b/modules/keystore/Makefile.am
+index b240563..a4e1a0b 100644
+--- a/modules/keystore/Makefile.am
++++ b/modules/keystore/Makefile.am
+@@ -2,6 +2,7 @@ keystoredir = $(pluginsdir)/keystore
+ 
+ libmemory_keystore_plugin_la_SOURCES = keystore/memory.c \
+ 	keystore/list_util.c keystore/list_util.h
++libmemory_keystore_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ keystore_LTLIBRARIES = libmemory_keystore_plugin.la
+ 
+ libfile_keystore_plugin_la_SOURCES = keystore/file.c \
+@@ -10,6 +11,7 @@ libfile_keystore_plugin_la_SOURCES = keystore/file.c \
+ if HAVE_ANDROID
+ libfile_keystore_plugin_la_SOURCES += keystore/file_crypt_android.c
+ endif
++libfile_keystore_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ keystore_LTLIBRARIES += libfile_keystore_plugin.la
+ 
+ libsecret_plugin_la_SOURCES = keystore/secret.c
+diff --git a/modules/logger/Makefile.am b/modules/logger/Makefile.am
+index 4addf6d..b4b962d 100644
+--- a/modules/logger/Makefile.am
++++ b/modules/logger/Makefile.am
+@@ -1,7 +1,9 @@
+ loggerdir = $(pluginsdir)/logger
+ 
+ libconsole_logger_plugin_la_SOURCES = logger/console.c
++libconsole_logger_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ libfile_logger_plugin_la_SOURCES = logger/file.c
++libfile_logger_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ logger_LTLIBRARIES = libconsole_logger_plugin.la libfile_logger_plugin.la
+ 
+ libsyslog_plugin_la_SOURCES = logger/syslog.c
+diff --git a/modules/packetizer/Makefile.am b/modules/packetizer/Makefile.am
+index cf39389..4ffa8ad 100644
+--- a/modules/packetizer/Makefile.am
++++ b/modules/packetizer/Makefile.am
+@@ -25,6 +25,17 @@ libpacketizer_avparser_plugin_la_SOURCES = packetizer/avparser.c \
+ libpacketizer_avparser_plugin_la_CFLAGS = $(AVCODEC_CFLAGS) $(AVUTIL_CFLAGS) $(AM_CFLAGS)
+ libpacketizer_avparser_plugin_la_LIBADD = $(AVCODEC_LIBS) $(AVUTIL_LIBS) $(LIBM)
+ 
++libpacketizer_copy_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_mpegvideo_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_mpeg4video_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_mpeg4audio_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_h264_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_vc1_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_mlp_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_dirac_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_flac_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_hevc_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
++libpacketizer_avparser_plugin_la_CPPFLAGS = $(AM_CPPFLAGS)
+ 
+ noinst_HEADERS += packetizer/packetizer_helper.h packetizer/startcode_helper.h
+ 
+@@ -48,4 +59,3 @@ if !MERGE_FFMPEG
+ packetizer_LTLIBRARIES += libpacketizer_avparser_plugin.la
+ endif
+ endif
+-
+-- 
+2.7.4
+
