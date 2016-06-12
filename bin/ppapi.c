@@ -290,21 +290,8 @@ static PP_Bool vlc_did_create(PP_Instance instance, uint32_t _argc,
 
  error:
   ret = PP_FALSE;
-  if(vlc_inst != NULL) {
-    libvlc_release(vlc_inst);
-  }
-  if(media_player != NULL) {
-    libvlc_media_player_release(media_player);
-  }
-  if(media_list_player != NULL) {
-    libvlc_media_list_player_set_media_player(media_list_player,
-                                              NULL);
-    libvlc_media_list_player_set_media_list(media_list_player,
-                                            NULL);
-    libvlc_media_list_player_release(media_list_player);
-  }
-  if(playlist != NULL) {
-    libvlc_media_list_release(playlist);
+  if(new_inst != NULL) {
+    remove_instance(new_inst);
   }
 
  done:
