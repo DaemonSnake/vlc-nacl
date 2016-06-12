@@ -67,7 +67,7 @@ VLC_PPAPI_MODULE_NAME("vlc");
 #define PLUGIN_INIT_SYMBOL(name)                \
   CONCATENATE(vlc_entry, name),
 
-static vlc_plugin_cb vlc_static_modules[] = {
+vlc_plugin_cb vlc_static_modules[] = {
 #include "vlc_static_modules_init.h"
   NULL
 };
