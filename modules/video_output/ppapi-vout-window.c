@@ -21,6 +21,7 @@
  *****************************************************************************/
 
 #define MODULE_NAME ppapi_vout_window
+#define MODULE_STRING "ppapi_vout_window"
 
 #include <stdlib.h>
 #include <assert.h>

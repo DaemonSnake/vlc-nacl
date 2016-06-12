@@ -24,6 +24,7 @@
 // XXX: Handle remote file updates.
 
 #define MODULE_NAME ppapi_access
+#define MODULE_STRING "ppapi_access"
 
 #include <stdlib.h>
 #include <assert.h>

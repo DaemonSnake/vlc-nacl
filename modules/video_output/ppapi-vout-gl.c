@@ -21,6 +21,7 @@
  *****************************************************************************/
 
 #define MODULE_NAME ppapi_vout_gl
+#define MODULE_STRING "ppapi_vout_gl"
 
 #include <stdint.h>
 #include <assert.h>

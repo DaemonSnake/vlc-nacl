@@ -17,6 +17,7 @@
  *****************************************************************************/
 
 #define MODULE_NAME ppapi_aout
+#define MODULE_STRING "ppapi_aout"
 
 #include <vlc_common.h>
 #include <vlc_atomic.h>
