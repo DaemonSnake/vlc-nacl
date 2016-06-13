@@ -1,0 +1,129 @@
+From ee258f47af4bbce5c3378a0c118837181aa81ec5 Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Sun, 12 Jun 2016 16:06:48 -0500
+Subject: [PATCH] Fix mkv related linker errors.
+
+The `GroupName_tag` globals used as template arguments aren't removed from
+linkage by the LLVM gold linker plugin it seems.
+---
+ modules/demux/mkv/Ebml_dispatcher.hpp        |  2 +-
+ modules/demux/mkv/dispatcher.hpp             |  8 ++++++--
+ modules/demux/mkv/matroska_segment.cpp       |  4 ++++
+ modules/demux/mkv/matroska_segment_parse.cpp | 12 ++++++++++++
+ 4 files changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/modules/demux/mkv/Ebml_dispatcher.hpp b/modules/demux/mkv/Ebml_dispatcher.hpp
+index b6b246f..c1fdbd4 100644
+--- a/modules/demux/mkv/Ebml_dispatcher.hpp
++++ b/modules/demux/mkv/Ebml_dispatcher.hpp
+@@ -129,7 +129,7 @@ namespace {
+ 
+     public:
+       ProcessorContainer           _processors;
+-      static ProcessorEntrySorter _ebml_sorter;
++      ProcessorEntrySorter _ebml_sorter;
+   };
+ 
+ } /* end-of-namespace */
+diff --git a/modules/demux/mkv/dispatcher.hpp b/modules/demux/mkv/dispatcher.hpp
+index 37a9447..5f156e6 100644
+--- a/modules/demux/mkv/dispatcher.hpp
++++ b/modules/demux/mkv/dispatcher.hpp
+@@ -55,7 +55,7 @@ namespace {
+   };
+ 
+   template<int>
+-  struct DispatcherTag;
++  struct DispatcherTag { };
+ 
+   template<class T, T*, class DispatcherType>
+   class DispatchContainer {
+@@ -70,6 +70,11 @@ namespace {
+   vlc_mutex_t DispatchContainer<T, P, DT>::_dispatcher_lock = VLC_STATIC_MUTEX;
+ }
+ 
++#define MKV_SWITCH_GROUP_DEFINE(GroupName_)             \
++  typedef DispatcherTag<__LINE__> GroupName_ ## _tag_t; \
++  GroupName_ ## _tag_t GroupName_ ## _tag
++
++
+ // ----------------------------------------------------------------------------
+ //   * `GroupName_##_tag` is used so that we can refer to a static dispatcher
+ //      of the correct type without instantiating DispatchContainer with a
+@@ -88,7 +93,6 @@ namespace {
+ // ----------------------------------------------------------------------------
+ 
+ #define MKV_SWITCH_CREATE(DispatchType_, GroupName_, PayloadType_) \
+-  typedef DispatcherTag<__LINE__> GroupName_ ## _tag_t; \
+   extern GroupName_##_tag_t GroupName_ ## _tag; \
+   struct GroupName_; \
+   struct GroupName_##_base : DispatchContainer<GroupName_##_tag_t, &GroupName_##_tag, DispatchType_> { \
+diff --git a/modules/demux/mkv/matroska_segment.cpp b/modules/demux/mkv/matroska_segment.cpp
+index dedd4d5..9238ab4 100644
+--- a/modules/demux/mkv/matroska_segment.cpp
++++ b/modules/demux/mkv/matroska_segment.cpp
+@@ -1190,6 +1190,10 @@ void matroska_segment_c::UnSelect( )
+     ep = NULL;
+ }
+ 
++MKV_SWITCH_GROUP_DEFINE(BlockGetHandler_l1);
++MKV_SWITCH_GROUP_DEFINE(BlockGetHandler_l2);
++MKV_SWITCH_GROUP_DEFINE(BlockGetHandler_l3);
++
+ int matroska_segment_c::BlockGet( KaxBlock * & pp_block, KaxSimpleBlock * & pp_simpleblock, bool *pb_key_picture, bool *pb_discardable_picture, int64_t *pi_duration )
+ {
+     pp_simpleblock = NULL;
+diff --git a/modules/demux/mkv/matroska_segment_parse.cpp b/modules/demux/mkv/matroska_segment_parse.cpp
+index 16e93d6..c7e2fab 100644
+--- a/modules/demux/mkv/matroska_segment_parse.cpp
++++ b/modules/demux/mkv/matroska_segment_parse.cpp
+@@ -195,6 +195,8 @@ void matroska_segment_c::ParseSeekHead( KaxSeekHead *seekhead )
+  * ParseTrackEntry:
+  *****************************************************************************/
+ 
++MKV_SWITCH_GROUP_DEFINE(MetaDataHandlers);
++
+ void matroska_segment_c::ParseTrackEntry( KaxTrackEntry *m )
+ {
+     bool bSupported = true;
+@@ -640,6 +642,9 @@ void matroska_segment_c::ParseTrackEntry( KaxTrackEntry *m )
+ /*****************************************************************************
+  * ParseTracks:
+  *****************************************************************************/
++
++MKV_SWITCH_GROUP_DEFINE(TrackHandlers);
++
+ void matroska_segment_c::ParseTracks( KaxTracks *tracks )
+ {
+     EbmlElement *el;
+@@ -691,6 +696,9 @@ void matroska_segment_c::ParseTracks( KaxTracks *tracks )
+ /*****************************************************************************
+  * ParseInfo:
+  *****************************************************************************/
++
++MKV_SWITCH_GROUP_DEFINE(InfoHandlers);
++
+ void matroska_segment_c::ParseInfo( KaxInfo *info )
+ {
+     EbmlElement *el;
+@@ -869,6 +877,9 @@ void matroska_segment_c::ParseInfo( KaxInfo *info )
+ /*****************************************************************************
+  * ParseChapterAtom
+  *****************************************************************************/
++
++MKV_SWITCH_GROUP_DEFINE(ChapterAtomHandlers);
++
+ void matroska_segment_c::ParseChapterAtom( int i_level, KaxChapterAtom *ca, chapter_item_c & chapters )
+ {
+     MkvTree( sys.demuxer, 3, "ChapterAtom (level=%d)", i_level );
+@@ -1195,6 +1206,7 @@ void matroska_segment_c::ParseCluster( KaxCluster *cluster, bool b_update_start_
+         i_mk_start_time = cluster->GlobalTimecode() / 1000;
+ }
+ 
++MKV_SWITCH_GROUP_DEFINE(TrackCodecHandlers);
+ 
+ int32_t matroska_segment_c::TrackInit( mkv_track_t * p_tk )
+ {
+-- 
+2.7.4
+
