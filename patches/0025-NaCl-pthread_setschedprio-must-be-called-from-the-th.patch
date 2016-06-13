@@ -1,0 +1,81 @@
+From 7f392c1678007669ba9da504580209fbfdfd7208 Mon Sep 17 00:00:00 2001
+From: Richard Diamond <wichard@vitalitystudios.com>
+Date: Sun, 12 Jun 2016 19:28:38 -0500
+Subject: [PATCH] [NaCl] `pthread_setschedprio` must be called from the thread
+ it concerns.
+
+---
+ src/nacl/thread.c | 20 ++++++++++++++------
+ src/nacl/thread.h |  1 +
+ 2 files changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/src/nacl/thread.c b/src/nacl/thread.c
+index 705f7a0..61d2349 100644
+--- a/src/nacl/thread.c
++++ b/src/nacl/thread.c
+@@ -44,6 +44,10 @@ static void* detached_thread_entry(void* data) {
+   __local_thread = t;
+ 
+   vlc_cleanup_push(detached_thread_cleanup, t);
++
++  // TODO: ignores errors.
++  pthread_setschedprio(t->id, t->schedprio);
++
+   t->entry(t->entry_data);
+   vlc_cleanup_pop();
+   detached_thread_cleanup(data);
+@@ -61,6 +65,10 @@ static void* joinable_thread_entry(void* data) {
+   void* ret = NULL;
+ 
+   vlc_cleanup_push(joinable_thread_cleanup, data);
++
++  // TODO: ignores errors.
++  pthread_setschedprio(t->id, t->schedprio);
++
+   ret = t->entry(t->entry_data);
+   vlc_cleanup_pop();
+   joinable_thread_cleanup(data);
+@@ -85,6 +93,7 @@ static int vlc_clone_attr(vlc_thread_t* id, void* (*entry)(void*),
+   thread->waiting = NULL;
+   thread->entry = entry;
+   thread->entry_data = data;
++  thread->schedprio = priority;
+   thread->cleaners = NULL;
+   vlc_mutex_init(&thread->waiting_lock);
+ 
+@@ -104,15 +113,14 @@ static int vlc_clone_attr(vlc_thread_t* id, void* (*entry)(void*),
+   int ret = pthread_create(&thread->id, &attr, entry, (void*)thread);
+   pthread_attr_destroy(&attr);
+ 
+-  if(!ret) {
+-    ret = pthread_setschedprio(thread->id, priority);
+-    if(!ret) {
+-      *id = (struct vlc_thread*)thread;
+-    }
++  if(!ret && id != NULL) {
++    *id = (struct vlc_thread*)thread;
+   }
+ 
+   if(ret) {
+-    *id = NULL;
++    if(id != NULL) {
++      *id = NULL;
++    }
+     free(thread);
+   }
+   return ret;
+diff --git a/src/nacl/thread.h b/src/nacl/thread.h
+index 2ca5061..81d9c0e 100644
+--- a/src/nacl/thread.h
++++ b/src/nacl/thread.h
+@@ -45,6 +45,7 @@ struct vlc_thread {
+   pthread_cond_t* waiting;
+   vlc_mutex_t     waiting_lock;
+   vlc_sem_t       finished;
++  int             schedprio;
+ 
+   void* (*entry)(void*);
+   void* entry_data;
+-- 
+2.7.4
+
