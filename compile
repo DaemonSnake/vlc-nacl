@@ -180,14 +180,13 @@ step_msg "configure done"
 # VLC CONFIGURE ARGUMENTS #
 ###########################
 
-VLC_CONFIGURE_ARGS="--disable-shared --enable-static --disable-vlc --disable-a52 --enable-gles2 --disable-xcb --disable-xvideo --disable-libgcrypt --disable-lua --disable-vlm --disable-sout --disable-addonmanagermodules --disable-httpd --disable-alsa --disable-pulse --disable-svg --disable-svgdec --disable-ncurses --disable-shout --disable-gnutls --disable-screen --disable-dbus --disable-udev --disable-upnp --disable-goom --disable-projectm --disable-mtp --disable-vsxu -disable-qt --disable-skins2 --disable-vdpau --disable-vda --without-contrib --disable-aribsub --disable-optimizations --disable-avcodec --disable-swscale"
+VLC_CONFIGURE_ARGS="--disable-shared --enable-static --disable-vlc --disable-a52 --enable-gles2 --disable-xcb --disable-xvideo --disable-libgcrypt --disable-lua --disable-vlm --disable-sout --disable-addonmanagermodules --disable-httpd --disable-alsa --disable-pulse --disable-svg --disable-svgdec --disable-ncurses --disable-shout --disable-gnutls --disable-screen --disable-dbus --disable-udev --disable-upnp --disable-goom --disable-projectm --disable-mtp --disable-vsxu --disable-qt --disable-skins2 --disable-vdpau --disable-vda --without-contrib --disable-aribsub --disable-optimizations --disable-swscale"
 
 ########################
 # VLC MODULE BLACKLIST #
 ########################
 
-VLC_MODULE_BLACKLIST="syslog
-"
+VLC_MODULE_BLACKLIST="syslog"
 
 #########
 # FLAGS #
