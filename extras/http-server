@@ -7,7 +7,8 @@ main(_) ->
     ServiceConfig = [{port, 8081},
                      {server_name, "simple static http server"},
                      {server_root, "."},
-                     {document_root, "index.html"},
+                     {document_root, "."},
+                     {directory_index, "index.html"},
                      {modules, [mod_range, mod_head, mod_get, mod_log, mod_dir]}
                     ],
     ok = inets:start(),
