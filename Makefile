@@ -4,14 +4,14 @@ ifeq ($(IN_COMPILE_SH),)
 $(error "Use 'compile'.")
 endif
 
-SOURCES := 						\
-	bin/ppapi.c 					\
-	modules/access/ppapi.cpp 			\
-	modules/audio_output/ppapi.c			\
-	modules/control/ppapi/control.cpp		\
-	modules/video_output/ppapi/gl.c			\
-	modules/video_output/ppapi/graphics3d.c		\
-	modules/video_output/ppapi/window.c 		\
+SOURCES := 							\
+	bin/ppapi.c 						\
+	vlc/modules/access/ppapi.cpp 				\
+	vlc/modules/audio_output/ppapi.c			\
+	vlc/modules/control/ppapi/control.cpp			\
+	vlc/modules/video_output/ppapi/gl.c			\
+	vlc/modules/video_output/ppapi/graphics3d.c		\
+	vlc/modules/video_output/ppapi/window.c 		\
 	src/ppapi.c
 
 OBJ_DIR := $(BUILD_DIR)/obj

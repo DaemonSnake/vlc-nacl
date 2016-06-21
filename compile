@@ -446,7 +446,7 @@ if [ $CLEAN -ne 0 ]; then
     rm $BUILD_DIR/vlc.*
 fi
 
-CFLAGS="${CFLAGS} -I${SRC_DIR}/vlc/include -I${SRC_DIR}/include -I${VLC_BUILD_DIR} -I${BUILD_DIR}"
+CFLAGS="${CFLAGS} -I${SRC_DIR}/vlc/include -I${VLC_BUILD_DIR} -I${BUILD_DIR}"
 LDFLAGS="$LDFLAGS ${EXTRA_LDFLAGS} -L${VLC_BUILD_DIR}/compat/.libs/ -L${VLC_BUILD_DIR}/lib/.libs/ -L${VLC_BUILD_DIR}/modules/.libs/ -L${VLC_BUILD_DIR}/src/.libs/ -L${WEBPORTS_SYSROOT}/usr/lib ${LIBS}"
 
 CPPFLAGS="$CFLAGS" \
