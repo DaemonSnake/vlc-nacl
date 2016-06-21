@@ -78,9 +78,9 @@ then
     msg "Patching"
     cd ${SRC_DIR}/vlc
 
-    for patch in `echo ${SRC_DIR}/patches/* | sort`;
+    for patch in `echo ${SRC_DIR}/patches/*.patch | sort`;
     do
-        git am $patch
+        git apply $patch
         checkfail "failed to apply patch"
     done
 
