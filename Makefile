@@ -6,12 +6,12 @@ endif
 
 SOURCES := 						\
 	bin/ppapi.c 					\
-	modules/ppapi-access.cpp 			\
-	modules/ppapi-aout.c 				\
-	modules/control/control.cpp			\
-	modules/video_output/ppapi-vout-gl.c		\
-	modules/video_output/ppapi-vout-graphics3d.c	\
-	modules/video_output/ppapi-vout-window.c 	\
+	modules/access/ppapi.cpp 			\
+	modules/audio_output/ppapi.c			\
+	modules/control/ppapi/control.cpp		\
+	modules/video_output/ppapi/gl.c			\
+	modules/video_output/ppapi/graphics3d.c		\
+	modules/video_output/ppapi/window.c 		\
 	src/ppapi.c
 
 OBJ_DIR := $(BUILD_DIR)/obj
