@@ -1,21 +1,27 @@
-From 71e3350d28af5046bddf995288dc019791089037 Mon Sep 17 00:00:00 2001
-From: Richard Diamond <wichard@vitalitystudios.com>
-Date: Thu, 24 Mar 2016 14:54:45 -0500
-Subject: [PATCH] Threading for NaCl (note: untested).
+From b02cea5d755328d208f08a190430e6be4fa25266 Mon Sep 17 00:00:00 2001
+From: Bastien Penavayre <bastienPenava@gmail.com>
+Date: Fri, 24 Jun 2016 15:19:25 +0200
+Subject: [PATCH] Merge the threading patch and its fixup patches
 
+This commit merges the main pnacl thread commit with the ones
+correcting it.
+patch merged:
+ -0009-Threading-for-Nacl-note-untest.patch
+ -0014-NaCl-threading-corrections.patch
+ -0020-NaCl-Fix-vlc_thread_fatal.patch
 ---
- include/vlc_threads.h |  96 +++++++++++++++++++++++++++++++++
- src/Makefile.am       |  24 +++++++++
- src/nacl/cancel.c     | 102 +++++++++++++++++++++++++++++++++++
- src/nacl/cond.c       | 137 +++++++++++++++++++++++++++++++++++++++++++++++
- src/nacl/mutex.c      |  88 +++++++++++++++++++++++++++++++
- src/nacl/rwlock.c     |  54 +++++++++++++++++++
- src/nacl/sem.c        |  72 +++++++++++++++++++++++++
- src/nacl/thread.c     | 143 ++++++++++++++++++++++++++++++++++++++++++++++++++
- src/nacl/thread.h     | 102 +++++++++++++++++++++++++++++++++++
- src/nacl/threadvar.c  |  45 ++++++++++++++++
- src/nacl/time.c       |  91 ++++++++++++++++++++++++++++++++
- 11 files changed, 954 insertions(+)
+ include/vlc_threads.h |  96 +++++++++++++++++++++++++++++++
+ src/Makefile.am       |  24 ++++++++
+ src/nacl/cancel.c     | 102 +++++++++++++++++++++++++++++++++
+ src/nacl/cond.c       | 137 ++++++++++++++++++++++++++++++++++++++++++++
+ src/nacl/mutex.c      |  88 ++++++++++++++++++++++++++++
+ src/nacl/rwlock.c     |  54 ++++++++++++++++++
+ src/nacl/sem.c        |  72 +++++++++++++++++++++++
+ src/nacl/thread.c     | 155 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/nacl/thread.h     | 100 ++++++++++++++++++++++++++++++++
+ src/nacl/threadvar.c  |  45 +++++++++++++++
+ src/nacl/time.c       |  91 +++++++++++++++++++++++++++++
+ 11 files changed, 964 insertions(+)
  create mode 100644 src/nacl/cancel.c
  create mode 100644 src/nacl/cond.c
  create mode 100644 src/nacl/mutex.c
@@ -134,7 +140,7 @@ index b31c885..02e0e9f 100644
  # include <unistd.h> /* _POSIX_SPIN_LOCKS */
  # include <pthread.h>
 diff --git a/src/Makefile.am b/src/Makefile.am
-index 9abc913..a687d06 100644
+index 5ee185f..439de17 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
 @@ -211,6 +211,7 @@ EXTRA_libvlccore_la_SOURCES = \
@@ -298,7 +304,7 @@ index 0000000..03f0a3f
 +}
 diff --git a/src/nacl/cond.c b/src/nacl/cond.c
 new file mode 100644
-index 0000000..405423b
+index 0000000..c6ffc49
 --- /dev/null
 +++ b/src/nacl/cond.c
 @@ -0,0 +1,137 @@
@@ -392,10 +398,10 @@ index 0000000..405423b
 +}
 +
 +int vlc_cond_timedwait(vlc_cond_t* condvar, vlc_mutex_t* mutex, mtime_t deadline) {
-+  vlc_clock_setup();
++  clock_setup();
 +  /* If the deadline is already elapsed, or within the clock precision,
 +   * do not even bother the system timer. */
-+  deadline -= clock_prec;
++  deadline -= vlc_clock_prec;
 +  deadline -= mdate();
 +
 +  /* deadline is now relative */
@@ -535,7 +541,7 @@ index 0000000..008ba93
 +}
 diff --git a/src/nacl/rwlock.c b/src/nacl/rwlock.c
 new file mode 100644
-index 0000000..0397047
+index 0000000..f7b9a3c
 --- /dev/null
 +++ b/src/nacl/rwlock.c
 @@ -0,0 +1,54 @@
@@ -574,22 +580,22 @@ index 0000000..0397047
 +  VLC_THREAD_ASSERT("initializing R/W lock");
 +}
 +
-+void vlc_rwlock_destroy (vlc_rwlock_t* lock) {
++void vlc_rwlock_destroy(vlc_rwlock_t* lock) {
 +  const int val = pthread_rwlock_destroy(lock);
 +  VLC_THREAD_ASSERT("destroying R/W lock");
 +}
 +
-+void vlc_rwlock_rdlock (vlc_rwlock_t* lock) {
++void vlc_rwlock_rdlock(vlc_rwlock_t* lock) {
 +  const int val = pthread_rwlock_rdlock(lock);
 +  VLC_THREAD_ASSERT("acquiring R/W lock for reading");
 +}
 +
-+void vlc_rwlock_wrlock (vlc_rwlock_t* lock) {
++void vlc_rwlock_wrlock(vlc_rwlock_t* lock) {
 +  const int val = pthread_rwlock_wrlock(lock);
 +  VLC_THREAD_ASSERT("acquiring R/W lock for writing");
 +}
 +
-+void vlc_rwlock_unlock (vlc_rwlock_t* lock) {
++void vlc_rwlock_unlock(vlc_rwlock_t* lock) {
 +  const int val = pthread_rwlock_unlock(lock);
 +  VLC_THREAD_ASSERT("releasing R/W lock");
 +}
@@ -673,10 +679,10 @@ index 0000000..c7a3c7c
 +}
 diff --git a/src/nacl/thread.c b/src/nacl/thread.c
 new file mode 100644
-index 0000000..4dd6ccb
+index 0000000..61d2349
 --- /dev/null
 +++ b/src/nacl/thread.c
-@@ -0,0 +1,143 @@
+@@ -0,0 +1,155 @@
 +/*****************************************************************************
 + * thread.c : pthread create.
 + *****************************************************************************
@@ -707,6 +713,10 @@ index 0000000..4dd6ccb
 +
 +#include "thread.h"
 +
++void vlc_threads_setup(libvlc_int_t* libvlc) {
++  VLC_UNUSED(libvlc);
++}
++
 +// thread creation:
 +
 +static void detached_thread_cleanup(void* data) {
@@ -719,6 +729,10 @@ index 0000000..4dd6ccb
 +  __local_thread = t;
 +
 +  vlc_cleanup_push(detached_thread_cleanup, t);
++
++  // TODO: ignores errors.
++  pthread_setschedprio(t->id, t->schedprio);
++
 +  t->entry(t->entry_data);
 +  vlc_cleanup_pop();
 +  detached_thread_cleanup(data);
@@ -736,6 +750,10 @@ index 0000000..4dd6ccb
 +  void* ret = NULL;
 +
 +  vlc_cleanup_push(joinable_thread_cleanup, data);
++
++  // TODO: ignores errors.
++  pthread_setschedprio(t->id, t->schedprio);
++
 +  ret = t->entry(t->entry_data);
 +  vlc_cleanup_pop();
 +  joinable_thread_cleanup(data);
@@ -760,6 +778,7 @@ index 0000000..4dd6ccb
 +  thread->waiting = NULL;
 +  thread->entry = entry;
 +  thread->entry_data = data;
++  thread->schedprio = priority;
 +  thread->cleaners = NULL;
 +  vlc_mutex_init(&thread->waiting_lock);
 +
@@ -779,15 +798,14 @@ index 0000000..4dd6ccb
 +  int ret = pthread_create(&thread->id, &attr, entry, (void*)thread);
 +  pthread_attr_destroy(&attr);
 +
-+  if(!ret) {
-+    ret = pthread_setschedprio(thread->id, priority);
-+    if(!ret) {
-+      *id = (struct vlc_thread*)thread;
-+    }
++  if(!ret && id != NULL) {
++    *id = (struct vlc_thread*)thread;
 +  }
 +
 +  if(ret) {
-+    *id = NULL;
++    if(id != NULL) {
++      *id = NULL;
++    }
 +    free(thread);
 +  }
 +  return ret;
@@ -822,10 +840,10 @@ index 0000000..4dd6ccb
 +}
 diff --git a/src/nacl/thread.h b/src/nacl/thread.h
 new file mode 100644
-index 0000000..0cac5a6
+index 0000000..81d9c0e
 --- /dev/null
 +++ b/src/nacl/thread.h
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,100 @@
 +/*****************************************************************************
 + * thread.c : NaCl-specific back-end for pthreads
 + *****************************************************************************
@@ -873,6 +891,7 @@ index 0000000..0cac5a6
 +  pthread_cond_t* waiting;
 +  vlc_mutex_t     waiting_lock;
 +  vlc_sem_t       finished;
++  int             schedprio;
 +
 +  void* (*entry)(void*);
 +  void* entry_data;
@@ -891,13 +910,14 @@ index 0000000..0cac5a6
 +/**
 + * Reports a fatal error from the threading layer, for debugging purposes.
 + */
-+static void vlc_thread_fatal(const char* action, const int error,
-+                             const char* function, const char* file,
-+                             const unsigned line) {
++static inline void vlc_thread_fatal(const char* action, const int error,
++                                    const char* function, const char* file,
++                                    const unsigned line) {
++  VLC_UNUSED(function); VLC_UNUSED(file); VLC_UNUSED(line);
++
 +  int canc = vlc_savecancel();
-+  fprintf(stderr, "LibVLC fatal error %s (%d) in thread %lu ",
-+          action, error, vlc_threadid ());
-+  vlc_trace(function, file, line);
++  fprintf(stderr, "LibVLC fatal error %s (%d) in thread %u ",
++          action, error, (uintptr_t)(pthread_self()));
 +  perror("Thread error");
 +  fflush(stderr);
 +
@@ -911,10 +931,6 @@ index 0000000..0cac5a6
 +#else
 +# define VLC_THREAD_ASSERT(action) ((void)val)
 +#endif
-+
-+void vlc_threads_setup(libvlc_int_t* libvlc) {
-+  VLC_UNUSED(libvlc);
-+}
 +
 +static inline struct timespec mtime_to_ts(const mtime_t date) {
 +  const lldiv_t d = lldiv(date, CLOCK_FREQ);
@@ -1077,5 +1093,5 @@ index 0000000..caa25f5
 +    }
 +}
 -- 
-2.5.0
+2.7.4
 
