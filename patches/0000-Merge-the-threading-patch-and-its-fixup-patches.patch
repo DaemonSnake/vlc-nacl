@@ -1,4 +1,4 @@
-From b02cea5d755328d208f08a190430e6be4fa25266 Mon Sep 17 00:00:00 2001
+From 8775a72c2d48b168c432cc21cc89cb6513279ac4 Mon Sep 17 00:00:00 2001
 From: Bastien Penavayre <bastienPenava@gmail.com>
 Date: Fri, 24 Jun 2016 15:19:25 +0200
 Subject: [PATCH] Merge the threading patch and its fixup patches
@@ -9,9 +9,10 @@ patch merged:
  -0009-Threading-for-Nacl-note-untest.patch
  -0014-NaCl-threading-corrections.patch
  -0020-NaCl-Fix-vlc_thread_fatal.patch
+ -0015-Add-missing-files-to-libvlccore.patch
 ---
  include/vlc_threads.h |  96 +++++++++++++++++++++++++++++++
- src/Makefile.am       |  24 ++++++++
+ src/Makefile.am       |  26 +++++++++
  src/nacl/cancel.c     | 102 +++++++++++++++++++++++++++++++++
  src/nacl/cond.c       | 137 ++++++++++++++++++++++++++++++++++++++++++++
  src/nacl/mutex.c      |  88 ++++++++++++++++++++++++++++
@@ -21,7 +22,7 @@ patch merged:
  src/nacl/thread.h     | 100 ++++++++++++++++++++++++++++++++
  src/nacl/threadvar.c  |  45 +++++++++++++++
  src/nacl/time.c       |  91 +++++++++++++++++++++++++++++
- 11 files changed, 964 insertions(+)
+ 11 files changed, 966 insertions(+)
  create mode 100644 src/nacl/cancel.c
  create mode 100644 src/nacl/cond.c
  create mode 100644 src/nacl/mutex.c
@@ -140,7 +141,7 @@ index b31c885..02e0e9f 100644
  # include <unistd.h> /* _POSIX_SPIN_LOCKS */
  # include <pthread.h>
 diff --git a/src/Makefile.am b/src/Makefile.am
-index 5ee185f..439de17 100644
+index 9abc913..d202d8b 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
 @@ -211,6 +211,7 @@ EXTRA_libvlccore_la_SOURCES = \
@@ -168,13 +169,14 @@ index 5ee185f..439de17 100644
  if BUILD_HTTPD
  libvlccore_la_SOURCES += $(SOURCES_libvlc_httpd)
  endif
-@@ -311,6 +316,25 @@ SOURCES_libvlc_os2 = \
+@@ -311,6 +316,27 @@ SOURCES_libvlc_os2 = \
  	os2/rand.c \
  	$(NULL)
  
 +SOURCES_libvlc_nacl = \
 +	posix/dirs.c \
 +	nacl/cancel.c \
++	nacl/cond.c \
 +	nacl/mutex.c \
 +	nacl/plugin.c \
 +	nacl/rwlock.c \
@@ -188,6 +190,7 @@ index 5ee185f..439de17 100644
 +	posix/timer.c \
 +	posix/linux_cpu.c \
 +	posix/linux_specific.c \
++	posix/specific.c \
 +	posix/rand.c \
 +	$(NULL)
 +
