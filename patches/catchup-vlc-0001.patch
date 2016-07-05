@@ -1,0 +1,79 @@
+From dc10889b60642a1382082c6fb6551a3dd99a7965 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Filip=20Ros=C3=A9en?= <filip@videolabs.io>
+Date: Wed, 4 May 2016 16:00:44 +0200
+Subject: [PATCH] mkv: removed unnecessary (and problematic) static data-member
+ from EbmlTypeDispatcher
+
+The previous static data-member really served no purpose, as such it has
+been removed and been replaced by a more appropriate less-than operator
+for EbmlProcessorEntry.
+
+The static data-member caused issues when the module was compiled using msvc
+(thanks for robux4 for finding the issue), which makes it even more important
+for the patch to come into play.
+
+Signed-off-by: Jean-Baptiste Kempf <jb@videolan.org>
+---
+ modules/demux/mkv/Ebml_dispatcher.hpp | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/modules/demux/mkv/Ebml_dispatcher.hpp b/modules/demux/mkv/Ebml_dispatcher.hpp
+index b6b246f..a3d39fd 100644
+--- a/modules/demux/mkv/Ebml_dispatcher.hpp
++++ b/modules/demux/mkv/Ebml_dispatcher.hpp
+@@ -53,20 +53,18 @@ namespace {
+     EbmlProcessorEntry (EbmlId const& id, std::type_info const* ti, EbmlProcessor cb)
+       : p_ebmlid (&id), p_typeid (ti), callback (cb)
+     { }
+-  };
+ 
+-  struct ProcessorEntrySorter {
+-    typedef EbmlProcessorEntry value_type;
++  };
+ 
+-    bool operator() (value_type const& lhs, value_type const& rhs) const {
++  bool operator<( EbmlProcessorEntry const& lhs, EbmlProcessorEntry const& rhs )
++  {
+       EbmlId const& lid = *lhs.p_ebmlid;
+       EbmlId const& rid = *rhs.p_ebmlid;
+ 
+       return lid.GetLength() < rid.GetLength() || (
+         !( rid.GetLength() < lid.GetLength() ) && lid.GetValue() < rid.GetValue()
+       );
+-    }
+-  };
++  }
+ 
+   class EbmlTypeDispatcher : public Dispatcher<EbmlTypeDispatcher, EbmlProcessorEntry::EbmlProcessor> {
+     protected:
+@@ -78,7 +76,7 @@ namespace {
+       }
+ 
+       void on_create () {
+-        std::sort (_processors.begin(), _processors.end(), _ebml_sorter);
++        std::sort (_processors.begin(), _processors.end());
+       }
+ 
+       bool send (EbmlElement * const& element, void* payload) const
+@@ -93,7 +91,7 @@ namespace {
+ 
+         ProcessorContainer::const_iterator cit_end = _processors.end();
+         ProcessorContainer::const_iterator cit     = std::lower_bound (
+-            _processors.begin(), cit_end, eb, _ebml_sorter
++            _processors.begin(), cit_end, eb
+         );
+ 
+         if (element && cit != cit_end)
+@@ -128,8 +126,7 @@ namespace {
+       }
+ 
+     public:
+-      ProcessorContainer           _processors;
+-      static ProcessorEntrySorter _ebml_sorter;
++      ProcessorContainer _processors;
+   };
+ 
+ } /* end-of-namespace */
+-- 
+2.7.4
+
