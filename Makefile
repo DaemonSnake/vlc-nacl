@@ -24,6 +24,10 @@ $(OBJ_DIR)/%.o: %.cpp
 	mkdir -p $(shell dirname $@)
 	$(CXX) -MP -MD $(CXXFLAGS) -c $< -o $@
 
+%.a.corrected: %.a
+	@./correct_module_list.sh $<
+	@touch $@;
+
 ifeq ($(PNACL),1)
 $(OBJ_DIR)/vlc.bugged.pexe: $(OBJS)
 	$(CXX) -MP -MD $^ -o $@ $(LDFLAGS) -lvlc -lvlccore -lcompat -lglibc-compat -lppapi -lppapi_gles2 -lnacl_io -lc++ -lpthread -lm
